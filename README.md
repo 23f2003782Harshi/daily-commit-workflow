@@ -2,36 +2,26 @@ name: Daily Commit
 
 on:
   schedule:
-    - cron: '25 8 * * *' # Runs daily at 08:25 UTC
-  workflow_dispatch: # Allow manual run
-
-permissions:
-  contents: write  # REQUIRED to push changes
+    - cron: '15 4 * * *'
+  workflow_dispatch:
 
 jobs:
   commit:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
-          persist-credentials: false
+          token: ${{ secrets.GITHUB_TOKEN }}  # ✅ allows push access
 
-      - name: Configure Git identity
+      - name: Commit step - 23f2003782@ds.study.iitm.ac.in
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          echo "TDSFU Daily run: $(date -u) TDSFU" >> daily-log.txt
 
-      - name: Make daily update
+      - name: Git Commit and Push
         run: |
-          echo "Daily update at $(date)" >> daily_log.txt
-          git add daily_log.txt
-          git commit -m "Daily update: $(date)" || echo "No changes to commit"
-
-      - name: Push changes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} HEAD:${{ github.ref }}
-
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add daily-log.txt
+          git commit -m "Auto commit at $(date -u)" || echo "No changes to commit"
+          git push
