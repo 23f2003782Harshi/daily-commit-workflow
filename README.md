@@ -1,25 +1,33 @@
-# daily-commit-workflow
 name: Daily Commit
 
 on:
   schedule:
-    - cron: '15 4 * * *'
+    - cron: '25 8 * * *'  # Runs daily at 08:25 UTC
   workflow_dispatch:
 
+permissions:
+  contents: write  # REQUIRED for pushing commits
+
 jobs:
-  commit:
+  daily-update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # ✅ allows push access
+          persist-credentials: false
 
-      - name: Commit step - 23f2003782@ds.study.ac.in
+      - name: Add daily update by 23f2003782@ds.study.iitm.ac.in
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "TDSFU Daily run: $(date -u) TDSFU" >> daily-log.txt
-
-      - name: Git Commit and Push
+          echo "Last updated on $(date -u)" > daily_update.txt
+          git config user.name "github-actions"
+          git config user.email "email@ds.study.iitm.ac.in"
+          git add daily_update.txt
+          git commit -m "Automated daily update $(date -u)" || echo "No changes"
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} HEAD:main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
